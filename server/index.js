@@ -9,8 +9,8 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get('/search/:name', (req, res) => {
-  scraper.searchAnime(req.params.name)
+app.get('/search/anime/:name', (req, res) => {
+  scraper.animeSearch(req.params.name)
     .then((anime) => {
       res.json(anime);
     });

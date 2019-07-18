@@ -3,51 +3,78 @@ const cheerio = require('cheerio');
 
 const url = 'http://www.turkanime.tv';
 
-function searchAnime(term) {
-  const searchUrl = '/anime/';
-  return fetch(`${url}${searchUrl}${term}`)
+// function searchAnime(term) {
+//   const searchUrl = '/anime/';
+//   return fetch(`${url}${searchUrl}${term}`)
+//     .then(response => response.text())
+//     .then((body) => {
+//       const $ = cheerio.load(body);
+//       const $element = $('.panel .panel-body .table-responsive');
+//       const $title = $('#detayPaylas .panel .panel-ust .panel-title');
+//       const $image = $element.find('div.imaj img');
+//       const $description = $element.find('td p.ozet');
+//       const $categories = [];
+//       $element.find('td a.btn.btn-default.btn-xs').not('[target="_blank"]').map((i, element) => {
+//         $categories.push($(element).text());
+//       });
+//
+//       const $like = $element.find('td div.btn-group a.colorbegen');
+//       const $unlike = $element.find('td div.btn-group a.colorbegenme');
+//
+//       const anime = {
+//         title: $title.text(),
+//         image: $image.attr('data-src'),
+//         description: $description.text(),
+//         categories: $categories,
+//         like: $like.text(),
+//         unlike: $unlike.text(),
+//       };
+//
+//       return anime;
+//       //
+//       // return anime
+//
+//       // $image.attr('data-src')
+//       // $title.children[0].data
+//
+//       // Selenium ile falan yapılacak bu.
+//       // // Bölüm listesi;
+//       // const $epElement = $('.panel .panel-body.padding-none').filter(function (i, el) {
+//       //   console.log($(el).text())
+//       // })
+//       // //const $episodes = $epElement.find($('ul.list li'))
+//       //
+//       // console.log($epElement.html())
+//     });
+// }
+
+function animeSearch(keyword) {
+    const url = `${anizm}/ara?s=${keyword}`;
+    return fetch(url)
     .then(response => response.text())
     .then((body) => {
-      const $ = cheerio.load(body);
-      const $element = $('.panel .panel-body .table-responsive');
-      const $title = $('#detayPaylas .panel .panel-ust .panel-title');
-      const $image = $element.find('div.imaj img');
-      const $description = $element.find('td p.ozet');
-      const $categories = [];
-      $element.find('td a.btn.btn-default.btn-xs').not('[target="_blank"]').map((i, element) => {
-        $categories.push($(element).text());
-      });
+        const $results = [];
 
-      const $like = $element.find('td div.btn-group a.colorbegen');
-      const $unlike = $element.find('td div.btn-group a.colorbegenme');
+        const $ = cheerio.load(body);
 
-      const anime = {
-        title: $title.text(),
-        image: $image.attr('data-src'),
-        description: $description.text(),
-        categories: $categories,
-        like: $like.text(),
-        unlike: $unlike.text(),
-      };
+        const $elements = $('.col-md-3 .item');
 
-      return anime;
-      //
-      // return anime
+        $elements.map((i, el) => {
+            const $el = $(el);
 
-      // $image.attr('data-src')
-      // $title.children[0].data
+            $results.push({
+                url: $el.find('a').attr('href'),
+                title: $el.find('.anime-caption').text(),
+                img: $el.find('img').attr('data-src'),
+            });
+        });
 
-      // Selenium ile falan yapılacak bu.
-      // // Bölüm listesi;
-      // const $epElement = $('.panel .panel-body.padding-none').filter(function (i, el) {
-      //   console.log($(el).text())
-      // })
-      // //const $episodes = $epElement.find($('ul.list li'))
-      //
-      // console.log($epElement.html())
+        // TODO: sayfalama kullanılmadan, hızlıca yapıldı.
+        // daha sonra sayfalama da kullanılacak
+
+        return $results;
     });
 }
-
 
 const anizm = 'https://www.anizm.tv';
 function animeList() {
@@ -174,7 +201,7 @@ function animeEpisode(url) {
 // searchAnime('shingeki-no-kyojin')  --> turkanıme
 
 module.exports = {
-  searchAnime,
+  animeSearch,
   animeList,
   animeDetails,
   animeEpisode
